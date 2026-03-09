@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TranscriptAI — Video Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0a0f; --surface:#12121a; --surface2:#1c1c28; --border:#2a2a3d;
+    --accent:#7c3aed; --accent2:#06b6d4; --accent3:#f59e0b;
+    --text:#e8e8f0; --muted:#6b6b8a; --success:#10b981; --danger:#ef4444;
+    --ig: #f59e0b; --tt: #06b6d4; --radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(124,58,237,.15) 0%,transparent 60%),
+               radial-gradient(ellipse 60% 40% at 80% 80%,rgba(6,182,212,.1) 0%,transparent 60%);}
+
+  .container{max-width:920px;margin:0 auto;padding:0 24px;position:relative;z-index:1;}
+
+  /* NAV */
+  nav{padding:24px 0;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);margin-bottom:56px;}
+  .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;letter-spacing:-.5px;}
+  .logo span{color:var(--accent2);}
+  .nav-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+  .nav-badge{font-size:10px;padding:4px 10px;border:1px solid var(--border);border-radius:100px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
+  #nav-status-badge{font-size:10px;padding:4px 12px;border-radius:100px;font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border:none;transition:all .2s;}
+  #nav-status-badge.locked{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);}
+  #nav-status-badge.active{background:rgba(16,185,129,.15);color:var(--success);border:1px solid rgba(16,185,129,.3);}
+
+  /* HERO */
+  .hero{text-align:center;margin-bottom:48px;animation:fadeUp .6s ease both;}
+  .hero-eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent2);margin-bottom:16px;}
+  .hero h1{font-family:'Syne',sans-serif;font-size:clamp(32px,6vw,60px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:14px;}
+  .hero h1 .hl{color:var(--accent);}
+  .hero p{color:var(--muted);font-size:13px;line-height:1.8;max-width:480px;margin:0 auto 20px;}
+
+  /* PLATFORM NOTICE */
+  .platform-notice{display:flex;align-items:flex-start;gap:14px;background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.2);border-radius:10px;padding:16px 20px;margin:0 auto 40px;max-width:600px;font-size:12px;line-height:1.7;color:var(--muted);}
+  .platform-notice .pn-icons{display:flex;gap:6px;flex-shrink:0;margin-top:2px;}
+  .pn-tag{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;}
+  .pn-ig{background:rgba(245,158,11,.15);color:var(--ig);border:1px solid rgba(245,158,11,.3);}
+  .pn-tt{background:rgba(6,182,212,.15);color:var(--tt);border:1px solid rgba(6,182,212,.3);}
+  .pn-yt-cross{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2);text-decoration:line-through;opacity:.6;}
+  .platform-notice .pn-text strong{color:var(--accent2);}
+
+  /* BANNERS */
+  #paywall-banner{background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(6,182,212,.08));border:1px solid rgba(124,58,237,.35);border-radius:var(--radius);padding:24px 28px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;animation:fadeUp .5s .1s ease both;}
+  .paywall-info{flex:1;min-width:200px;}
+  .paywall-info h3{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;margin-bottom:6px;}
+  .paywall-info p{color:var(--muted);font-size:12px;line-height:1.7;}
+  .paywall-info p strong{color:var(--accent2);}
+  .paywall-actions{display:flex;flex-direction:column;gap:10px;min-width:180px;}
+  .btn-paypal{padding:12px 20px;background:linear-gradient(135deg,#009cde,#003087);color:#fff;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;box-shadow:0 4px 16px rgba(0,156,222,.3);letter-spacing:.03em;}
+  .btn-paypal:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,156,222,.4);}
+  .btn-unlock{padding:11px 20px;background:transparent;color:var(--text);border:1px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;}
+  .btn-unlock:hover{border-color:var(--accent);color:var(--accent);}
+
+  #active-banner{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:var(--radius);padding:14px 22px;margin-bottom:28px;font-size:12px;color:var(--success);display:none;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;animation:fadeUp .4s ease both;}
+  #active-banner span{display:flex;align-items:center;gap:8px;}
+  .logout-btn{background:none;border:1px solid rgba(16,185,129,.3);color:var(--success);font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;transition:all .2s;letter-spacing:.05em;text-transform:uppercase;}
+  .logout-btn:hover{background:rgba(16,185,129,.1);}
+
+  /* LOCK OVERLAY */
+  .lockable{position:relative;transition:all .3s;}
+  .lockable.locked::after{content:'';position:absolute;inset:-4px;background:rgba(10,10,15,.7);backdrop-filter:blur(3px);border-radius:calc(var(--radius) + 4px);z-index:10;pointer-events:all;cursor:not-allowed;}
+  .lockable.locked::before{content:'🔒  Subscribe to unlock';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:11;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:rgba(255,255,255,.75);white-space:nowrap;pointer-events:none;}
+
+  /* TABS */
+  .tabs{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:4px;gap:4px;margin-bottom:28px;animation:fadeUp .6s .15s ease both;}
+  .tab-btn{flex:1;padding:11px 16px;border:none;border-radius:8px;background:transparent;color:var(--muted);font-family:'Syne',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .tab-btn.active{background:var(--accent);color:#fff;box-shadow:0 4px 20px rgba(124,58,237,.4);}
+  .tab-btn:not(.active):hover{color:var(--text);background:var(--surface2);}
+  .lock-tag{font-size:9px;padding:2px 6px;background:rgba(239,68,68,.2);color:#f87171;border-radius:4px;border:1px solid rgba(239,68,68,.3);letter-spacing:.06em;}
+
+  .panel{display:none;animation:fadeUp .3s ease both;}
+  .panel.active{display:block;}
+
+  /* CARDS */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:20px;animation:fadeUp .5s .2s ease both;}
+  .card-label{font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);margin-bottom:14px;display:block;}
+
+  /* INPUTS */
+  .input-group{margin-bottom:18px;}
+  .input-group label{display:block;font-size:12px;color:var(--muted);margin-bottom:8px;letter-spacing:.04em;}
+  input,select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border-color .2s,box-shadow .2s;}
+  input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,58,237,.15);}
+  input::placeholder{color:var(--muted);}
+  select option{background:var(--surface2);}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+
+  /* URL INPUT WRAPPER with platform indicator */
+  .url-input-wrap{position:relative;}
+  .url-input-wrap input{padding-right:80px;}
+  .url-platform-indicator{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:10px;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;pointer-events:none;opacity:0;transition:opacity .2s;}
+  .url-platform-indicator.visible{opacity:1;}
+  .url-platform-indicator.ig{background:rgba(245,158,11,.15);color:var(--ig);border:1px solid rgba(245,158,11,.3);}
+  .url-platform-indicator.tt{background:rgba(6,182,212,.15);color:var(--tt);border:1px solid rgba(6,182,212,.3);}
+  .url-platform-indicator.yt{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2);}
+
+  /* YOUTUBE WARNING */
+  .yt-warning{display:none;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:8px;padding:12px 16px;font-size:12px;color:#f87171;line-height:1.7;margin-bottom:16px;}
+  .yt-warning a{color:#f87171;}
+  .yt-warning strong{color:#fff;}
+
+  /* BUTTONS */
+  .btn{width:100%;padding:13px 24px;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:all .2s;letter-spacing:.03em;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn-primary{background:var(--accent);color:#fff;box-shadow:0 4px 20px rgba(124,58,237,.3);}
+  .btn-primary:hover{background:#6d28d9;transform:translateY(-1px);}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  .spinner{width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+
+  /* STATUS & STEPS */
+  .status-bar{display:none;align-items:center;gap:10px;padding:13px 16px;border-radius:8px;font-size:12px;margin-top:14px;border:1px solid;}
+  .status-bar.info   {background:rgba(6,182,212,.08);border-color:rgba(6,182,212,.3);color:var(--accent2);}
+  .status-bar.success{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.3);color:var(--success);}
+  .status-bar.error  {background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.3);color:var(--danger);}
+  .status-bar.warning{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.3);color:var(--accent3);}
+
+  .steps{display:none;flex-direction:column;gap:0;margin-top:18px;}
+  .step{display:flex;align-items:center;gap:14px;font-size:12px;color:var(--muted);padding:9px 0;transition:color .3s;border-bottom:1px solid rgba(42,42,61,.4);}
+  .step:last-child{border-bottom:none;}
+  .step.done {color:var(--success);}
+  .step.active{color:var(--text);}
+  .step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .3s;}
+  .step.done .step-dot  {background:var(--success);}
+  .step.active .step-dot{background:var(--accent);box-shadow:0 0 8px var(--accent);animation:pulse 1s infinite;}
+
+  .poll-timer{font-size:11px;color:var(--muted);margin-top:10px;text-align:center;display:none;}
+  .poll-timer span{color:var(--accent2);}
+
+  /* RESULT */
+  .result-section{display:none;margin-top:20px;animation:fadeUp .4s ease both;}
+  .result-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+  .result-title{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;}
+  .result-meta {font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;}
+  .transcript-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:20px;font-size:13px;line-height:1.9;color:var(--text);max-height:300px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;}
+  .transcript-box::-webkit-scrollbar{width:4px;}
+  .transcript-box::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+  .result-actions{display:flex;gap:8px;margin-top:10px;}
+
+  /* BATCH ITEMS */
+  .batch-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden;transition:border-color .2s;}
+  .batch-item:hover{border-color:var(--accent);}
+  .batch-item-header{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;cursor:pointer;user-select:none;gap:10px;}
+  .batch-item-title{font-size:12px;font-family:'Syne',sans-serif;font-weight:600;display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+  .batch-item-title-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .platform-badge{font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.2);color:var(--accent);border:1px solid rgba(124,58,237,.3);text-transform:uppercase;letter-spacing:.08em;flex-shrink:0;}
+  .platform-badge.ig{background:rgba(245,158,11,.15);color:var(--ig);border-color:rgba(245,158,11,.3);}
+  .platform-badge.tt{background:rgba(6,182,212,.15);color:var(--tt);border-color:rgba(6,182,212,.3);}
+  .batch-item-body{display:none;padding:12px 16px 16px;font-size:12px;line-height:1.8;color:var(--muted);border-top:1px solid var(--border);}
+  .batch-item.open .batch-item-body{display:block;}
+  .chevron{transition:transform .2s;font-size:11px;color:var(--muted);flex-shrink:0;}
+  .batch-item.open .chevron{transform:rotate(180deg);}
+  .batch-item-stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid rgba(42,42,61,.4);}
+  .batch-stat{font-size:10px;color:var(--muted);}
+  .batch-stat strong{color:var(--success);}
+
+  /* COPY BUTTON */
+  .copy-btn{padding:6px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:all .2s;}
+  .copy-btn:hover{color:var(--text);border-color:var(--accent);}
+  .copy-btn.copied{color:var(--success);border-color:var(--success);}
+
+  /* RECENT TABLE */
+  .recent-section{margin-top:40px;animation:fadeUp .5s .3s ease both;}
+  .section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table{width:100%;border-collapse:collapse;font-size:12px;min-width:480px;}
+  th{text-align:left;padding:10px 14px;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--border);font-weight:400;}
+  td{padding:11px 14px;border-bottom:1px solid rgba(42,42,61,.5);color:var(--text);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:rgba(255,255,255,.02);}
+  .tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;text-transform:uppercase;letter-spacing:.08em;}
+  .tag-ig {background:rgba(245,158,11,.15);color:var(--accent3);border:1px solid rgba(245,158,11,.2);}
+  .tag-tt {background:rgba(6,182,212,.15);color:var(--accent2);border:1px solid rgba(6,182,212,.2);}
+  .tag-url{background:rgba(124,58,237,.15);color:#a78bfa;border:1px solid rgba(124,58,237,.2);}
+  .view-link{color:var(--accent2);text-decoration:none;font-size:11px;}
+  .view-link:hover{text-decoration:underline;}
+
+  /* MODALS */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:200;align-items:center;justify-content:center;padding:16px;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:560px;width:100%;max-height:85vh;overflow-y:auto;animation:fadeUp .3s ease both;}
+  .modal-title{font-family:'Syne',sans-serif;font-weight:800;font-size:19px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .modal-title-text{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .modal-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;flex-shrink:0;}
+  .modal-close:hover{color:var(--text);}
+  .modal-meta{font-size:11px;color:var(--muted);margin-bottom:18px;line-height:1.6;word-break:break-all;}
+  .modal-transcript{font-size:13px;line-height:2;color:var(--text);white-space:pre-wrap;word-break:break-word;}
+  .modal-actions{display:flex;gap:8px;margin-top:16px;}
+
+  /* PAYWALL MODAL */
+  .price-badge{display:block;font-family:'Syne',sans-serif;font-weight:800;font-size:44px;color:var(--accent2);letter-spacing:-2px;text-align:center;margin-top:8px;}
+  .price-period{font-size:12px;color:var(--muted);text-align:center;margin-bottom:20px;}
+  .feature-list{margin:0 0 20px;}
+  .feature-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(42,42,61,.4);font-size:13px;color:var(--text);}
+  .feature-item:last-child{border-bottom:none;}
+  .feature-item .check{color:var(--success);}
+  .paywall-divider{text-align:center;color:var(--muted);font-size:11px;margin:18px 0;position:relative;}
+  .paywall-divider::before,.paywall-divider::after{content:'';position:absolute;top:50%;width:38%;height:1px;background:var(--border);}
+  .paywall-divider::before{left:0;}.paywall-divider::after{right:0;}
+  .btn-paypal-full{width:100%;padding:14px;background:linear-gradient(135deg,#009cde,#003087);color:#fff;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;box-shadow:0 4px 20px rgba(0,156,222,.35);margin-bottom:12px;}
+  .btn-paypal-full:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(0,156,222,.45);}
+  .paypal-note{font-size:11px;color:var(--muted);text-align:center;line-height:1.7;margin-bottom:18px;}
+  .paypal-note strong{color:var(--text);}
+  .btn-secondary{width:100%;padding:12px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Syne',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s;margin-top:8px;}
+  .btn-secondary:hover{border-color:var(--accent2);color:var(--accent2);}
+  .unlock-subtitle{font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;}
+
+  footer{margin-top:72px;padding:28px 0;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:11px;letter-spacing:.05em;}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes spin   {to{transform:rotate(360deg)}}
+  @keyframes pulse  {0%,100%{box-shadow:0 0 4px var(--accent)}50%{box-shadow:0 0 12px var(--accent)}}
+
+  /* MOBILE */
+  @media(max-width:640px){
+    .container{padding:0 16px;}
+    nav{margin-bottom:36px;padding:18px 0;}
+    .logo{font-size:17px;}
+    .nav-badge{display:none;}
+    .hero h1{font-size:30px;letter-spacing:-1px;}
+    .hero p{font-size:12px;}
+    .platform-notice{flex-direction:column;gap:10px;}
+    .row{grid-template-columns:1fr;}
+    .card{padding:18px;}
+    #paywall-banner{flex-direction:column;}
+    .paywall-actions{width:100%;}
+    .lockable.locked::before{font-size:12px;white-space:normal;text-align:center;width:85%;}
+    .tabs{gap:3px;}
+    .tab-btn{font-size:11px;padding:10px 8px;gap:5px;}
+    .result-actions{flex-wrap:wrap;}
+    .modal{padding:20px;}
+    .modal-title{font-size:17px;}
+    .batch-item-header{padding:11px 13px;}
+    th,td{padding:9px 10px;}
+  }
+  @media(max-width:380px){
+    .hero h1{font-size:26px;}
+    .tab-btn{font-size:10px;padding:9px 6px;}
+  }
+
+  /* ── HISTORY DRAWER ── */
+  .drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:300;}
+  .drawer-overlay.open{display:block;}
+  .drawer{position:fixed;top:0;right:-520px;width:min(500px,100vw);height:100vh;background:var(--surface);border-left:1px solid var(--border);z-index:301;display:flex;flex-direction:column;transition:right .32s cubic-bezier(.4,0,.2,1);box-shadow:-12px 0 48px rgba(0,0,0,.5);}
+  .drawer.open{right:0;}
+  .drawer-head{display:flex;align-items:center;justify-content:space-between;padding:22px 22px 18px;border-bottom:1px solid var(--border);flex-shrink:0;}
+  .drawer-head-left{display:flex;align-items:center;gap:12px;}
+  .drawer-title-text{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;}
+  .drawer-count-badge{font-size:10px;padding:3px 9px;background:rgba(124,58,237,.15);color:var(--accent);border:1px solid rgba(124,58,237,.3);border-radius:20px;letter-spacing:.05em;}
+  .drawer-search-wrap{padding:14px 16px;border-bottom:1px solid var(--border);flex-shrink:0;}
+  .drawer-search-wrap input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border-color .2s;}
+  .drawer-search-wrap input:focus{border-color:var(--accent);}
+  .drawer-scroll{flex:1;overflow-y:auto;padding:10px;}
+  .drawer-scroll::-webkit-scrollbar{width:4px;}
+  .drawer-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+  .drow{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:8px;cursor:pointer;transition:background .15s;border:1px solid transparent;margin-bottom:4px;}
+  .drow:hover{background:var(--surface2);border-color:var(--border);}
+  .drow-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+  .drow-icon.ig{background:rgba(245,158,11,.12);}
+  .drow-icon.tt{background:rgba(6,182,212,.12);}
+  .drow-icon.uk{background:rgba(124,58,237,.12);}
+  .drow-body{flex:1;min-width:0;}
+  .drow-url{font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px;}
+  .drow-meta{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+  .drow-words{font-size:10px;color:var(--success);}
+  .drow-src{font-size:9px;padding:1px 6px;border-radius:3px;text-transform:uppercase;letter-spacing:.05em;}
+  .drow-src.asr{background:rgba(16,185,129,.12);color:var(--success);}
+  .drow-src.dg{background:rgba(124,58,237,.12);color:#a78bfa;}
+  .drow-date{font-size:10px;color:var(--muted);}
+  .drow-arrow{font-size:14px;color:var(--muted);flex-shrink:0;}
+  .view-all-btn{display:flex;align-items:center;gap:6px;margin-bottom:14px;background:none;border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:all .2s;letter-spacing:.04em;}
+  .view-all-btn:hover{border-color:var(--accent2);color:var(--accent2);}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <nav>
+    <div class="logo">transcript<span>AI</span></div>
+    <div class="nav-right">
+      <div class="nav-badge">Deepgram Nova-2</div>
+      <button id="nav-status-badge" class="locked" onclick="openPaywallModal()">🔒 Locked</button>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-eyebrow">// video intelligence tool</div>
+    <h1>Turn any reel into<br><span class="hl">searchable text</span></h1>
+    <p>Transcribe Instagram and TikTok videos instantly — stored, searchable, and ready to use.</p>
+  </div>
+
+  <!-- PLATFORM SUPPORT NOTICE -->
+  <div class="platform-notice">
+    <div class="pn-icons">
+      <span class="pn-tag pn-ig">Instagram</span>
+      <span class="pn-tag pn-tt">TikTok</span>
+      <span class="pn-tag pn-yt-cross">YouTube</span>
+    </div>
+    <div class="pn-text">
+      <strong>Supported: Instagram Reels &amp; TikTok videos only.</strong>
+      YouTube is not supported here — YouTube already provides a built-in transcript on every video (click ··· → Show transcript below any video).
+    </div>
+  </div>
+
+  <div id="active-banner">
+    <span>✦ Pro access active &nbsp;·&nbsp; <span id="active-email-display"></span></span>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <div id="paywall-banner">
+    <div class="paywall-info">
+      <h3>🔒 Pro Feature — $10 / month</h3>
+      <p>Transcription tools are available to <strong>paid subscribers only</strong>.<br>
+         Pay via PayPal, then enter your access token to unlock instantly.</p>
+    </div>
+    <div class="paywall-actions">
+      <div id="paypal-banner-btn-container" style="width:100%;min-height:45px;"></div>
+      <button class="btn-unlock" onclick="openUnlockModal()">🔑 Already subscribed? Enter token</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('url')">
+      ⟶ Single Video URL <span class="lock-tag" id="tab-lock-url">PRO</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('batch')">
+      ⊞ Bulk by Creator <span class="lock-tag" id="tab-lock-batch">PRO</span>
+    </button>
+  </div>
+
+  <!-- PANEL 1: URL -->
+  <div class="panel active" id="panel-url">
+    <div class="card lockable locked" id="url-lockable">
+      <span class="card-label">// paste reel or video url</span>
+
+      <div class="input-group">
+        <label>Instagram Reel or TikTok Video URL</label>
+        <div class="url-input-wrap">
+          <input type="url" id="video-url"
+            placeholder="https://www.instagram.com/reel/... or https://www.tiktok.com/@user/video/..."
+            oninput="onUrlInput(this.value)" />
+          <span class="url-platform-indicator" id="url-platform-indicator"></span>
+        </div>
+        <div class="yt-warning" id="yt-warning">
+          ⚠ <strong>YouTube not supported here.</strong> YouTube already provides transcripts natively —
+          open the video, click <strong>···</strong> below it, then <strong>Show transcript</strong>. Free, instant, no tool needed.
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Language <span style="color:var(--muted);font-size:11px;">(optional — auto-detect by default)</span></label>
+        <select id="url-lang">
+          <option value="">Auto Detect</option>
+          <option value="en">English</option>
+          <option value="hi">Hindi</option>
+          <option value="es">Spanish</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="ja">Japanese</option>
+          <option value="pt">Portuguese</option>
+          <option value="ar">Arabic</option>
+          <option value="id">Indonesian</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" id="url-btn" onclick="submitUrl()">
+        <span class="spinner" id="url-spinner"></span>
+        <span id="url-btn-text">Transcribe Video</span>
+      </button>
+
+      <div class="status-bar" id="url-status"></div>
+      <div class="steps" id="url-steps">
+        <div class="step" id="step-queue"><div class="step-dot"></div>Job queued</div>
+        <div class="step" id="step-scrape"><div class="step-dot"></div>Scraping video via Apify</div>
+        <div class="step" id="step-deepgram"><div class="step-dot"></div>Deepgram transcribing audio</div>
+        <div class="step" id="step-save"><div class="step-dot"></div>Saving transcript</div>
+        <div class="step" id="step-done"><div class="step-dot"></div>Complete</div>
+      </div>
+      <div class="poll-timer" id="url-poll-timer">Checking every 4s… <span id="url-elapsed">0</span>s elapsed</div>
+    </div>
+
+    <div class="result-section" id="url-result">
+      <div class="result-header">
+        <div class="result-title">Transcript Ready ✓</div>
+        <div class="result-meta" id="url-result-meta"></div>
+      </div>
+      <div class="transcript-box" id="url-transcript-text"></div>
+      <div class="result-actions">
+        <button class="copy-btn" id="url-copy-btn" onclick="copyText('url-transcript-text','url-copy-btn')">copy transcript</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 2: BATCH -->
+  <div class="panel" id="panel-batch">
+    <div class="card lockable locked" id="batch-lockable">
+      <span class="card-label">// pull latest videos from a creator</span>
+
+      <div class="row">
+        <div class="input-group">
+          <label>Platform</label>
+          <select id="batch-platform" onchange="updatePlaceholder()">
+            <option value="instagram">Instagram</option>
+            <option value="tiktok">TikTok</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Number of Videos</label>
+          <select id="batch-count">
+            <option value="3">3 latest</option>
+            <option value="5" selected>5 latest</option>
+            <option value="10">10 latest</option>
+            <option value="20">20 latest</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Creator Username</label>
+        <input type="text" id="batch-username" placeholder="@natgeo" />
+      </div>
+
+      <div class="input-group">
+        <label>Language <span style="color:var(--muted);font-size:11px;">(optional)</span></label>
+        <select id="batch-lang">
+          <option value="">Auto Detect</option>
+          <option value="en">English</option>
+          <option value="hi">Hindi</option>
+          <option value="es">Spanish</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="ar">Arabic</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" id="batch-btn" onclick="submitBatch()">
+        <span class="spinner" id="batch-spinner"></span>
+        <span id="batch-btn-text">Fetch &amp; Transcribe</span>
+      </button>
+
+      <div class="status-bar" id="batch-status"></div>
+      <div class="steps" id="batch-steps">
+        <div class="step" id="bstep-queue"><div class="step-dot"></div>Batch job queued</div>
+        <div class="step" id="bstep-scrape"><div class="step-dot"></div>Fetching videos via Apify</div>
+        <div class="step" id="bstep-deepgram"><div class="step-dot"></div>Transcribing all videos</div>
+        <div class="step" id="bstep-save"><div class="step-dot"></div>Saving to database</div>
+        <div class="step" id="bstep-done"><div class="step-dot"></div>Batch complete</div>
+      </div>
+      <div class="poll-timer" id="batch-poll-timer">Checking every 4s… <span id="batch-elapsed">0</span>s elapsed</div>
+    </div>
+
+    <div class="result-section" id="batch-result">
+      <div class="result-header">
+        <div class="result-title">Batch Transcripts ✓</div>
+        <span class="result-meta" id="batch-result-meta"></span>
+      </div>
+      <div id="batch-items-container"></div>
+    </div>
+  </div>
+
+  <!-- RECENT TABLE -->
+  <div class="recent-section">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div class="section-title" style="margin-bottom:0;">Recent Transcripts</div>
+      <button class="view-all-btn" onclick="openDrawer()">📋 View All History ↗</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>URL / Title</th><th>Platform</th><th>Words</th><th>Source</th><th>Date</th><th></th></tr></thead>
+        <tbody id="recent-tbody">
+          <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:28px 0;font-size:12px;">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    transcriptAI &nbsp;·&nbsp; Instagram &amp; TikTok only &nbsp;·&nbsp; Deepgram + Supabase + Apify &nbsp;·&nbsp;
+    <a href="#" onclick="openPaywallModal();return false" style="color:var(--accent2);text-decoration:none;">Subscribe $10/mo</a>
+  </footer>
+</div>
+
+<!-- TRANSCRIPT MODAL -->
+<div class="modal-overlay" id="transcript-modal" onclick="if(event.target===this)closeModalDirect()">
+  <div class="modal">
+    <div class="modal-title">
+      <span class="modal-title-text" id="modal-title-text">Transcript</span>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-meta" id="modal-meta"></div>
+    <div class="modal-transcript" id="modal-transcript-text"></div>
+    <div class="modal-actions">
+      <button class="copy-btn" id="modal-copy-btn" onclick="copyText('modal-transcript-text','modal-copy-btn')">copy transcript</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYWALL MODAL -->
+<div class="modal-overlay" id="paywall-modal" onclick="if(event.target===this)closePaywallModalDirect()">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-title">Unlock Pro Access<button class="modal-close" onclick="closePaywallModalDirect()">✕</button></div>
+    <div class="price-badge">$10</div>
+    <div class="price-period">per month · cancel anytime</div>
+    <div class="feature-list">
+      <div class="feature-item"><span class="check">✓</span> Transcribe any Instagram Reel or TikTok video</div>
+      <div class="feature-item"><span class="check">✓</span> Bulk pull from Instagram &amp; TikTok creators</div>
+      <div class="feature-item"><span class="check">✓</span> Deepgram Nova-2 — highest accuracy</div>
+      <div class="feature-item"><span class="check">✓</span> Auto language detection (30+ languages)</div>
+      <div class="feature-item"><span class="check">✓</span> TikTok ASR subtitles — free, instant</div>
+      <div class="feature-item"><span class="check">✓</span> Full transcript history saved &amp; searchable</div>
+    </div>
+    <div id="paypal-modal-btn-container" style="width:100%;min-height:50px;margin-bottom:12px;"></div>
+    <p class="paypal-note">After subscribing via PayPal, your access is activated <strong>automatically</strong> — no waiting, no manual steps.</p>
+    <div class="paywall-divider">already subscribed?</div>
+    <button class="btn-secondary" onclick="closePaywallModalDirect();openUnlockModal()">🔑 Enter Access Token</button>
+  </div>
+</div>
+
+<!-- UNLOCK MODAL -->
+<div class="modal-overlay" id="unlock-modal" onclick="if(event.target===this)closeUnlockModalDirect()">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-title">Enter Access Token<button class="modal-close" onclick="closeUnlockModalDirect()">✕</button></div>
+    <p class="unlock-subtitle">Paste the access token from your confirmation email. Saved locally so you won't need to re-enter.</p>
+    <div class="input-group"><label>Your Email</label><input type="email" id="unlock-email" placeholder="you@example.com" /></div>
+    <div class="input-group"><label>Access Token</label><input type="text" id="unlock-token" placeholder="e.g. a3f8c2d1e9b7..." /></div>
+    <div class="status-bar" id="unlock-status"></div>
+    <button class="btn btn-primary" style="margin-top:14px" id="unlock-btn" onclick="verifyToken()">
+      <span class="spinner" id="unlock-spinner"></span>
+      <span id="unlock-btn-text">Unlock Access</span>
+    </button>
+    <button class="btn-secondary" onclick="closeUnlockModalDirect()">Cancel</button>
+  </div>
+</div>
+
+<script>
+  // ── CONFIG ───────────────────────────────────────────────────────────────────
+  const SUPABASE_URL  = 'https://mtqnkdblgieliqkthasc.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10cW5rZGJsZ2llbGlxa3RoYXNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3MDAyNjIsImV4cCI6MjA4NTI3NjI2Mn0.-trmIlrF9SUnrEJD9Y-K3doiPcT0YOwiwtLwQtixh0I';
+  const EDGE_TRANSCRIPT_URL   = `${SUPABASE_URL}/functions/v1/transcript-url`;
+  const EDGE_TRANSCRIPT_BATCH = `${SUPABASE_URL}/functions/v1/transcript-batch`;
+  const EDGE_VERIFY_TOKEN     = `${SUPABASE_URL}/functions/v1/verify-token`;
+  const POLL_INTERVAL = 4000;
+  const POLL_TIMEOUT  = 300000;
+
+  // ── AUTH ─────────────────────────────────────────────────────────────────────
+  let isUnlocked = false;
+
+  function checkStoredToken() {
+    const token = localStorage.getItem('trai_token');
+    const email = localStorage.getItem('trai_email');
+    if (token && email) { setUnlocked(email); verifyTokenSilent(token, email); }
+    loadRecent();
+  }
+
+  async function verifyTokenSilent(token, email) {
+    try {
+      const res  = await fetch(EDGE_VERIFY_TOKEN, { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_ANON}`}, body:JSON.stringify({token,email}) });
+      const data = await res.json();
+      if (!data.valid) logout();
+    } catch {}
+  }
+
+  function setUnlocked(email) {
+    isUnlocked = true;
+    document.getElementById('paywall-banner').style.display = 'none';
+    const ab = document.getElementById('active-banner');
+    ab.style.display = 'flex';
+    document.getElementById('active-email-display').textContent = email;
+    document.getElementById('url-lockable').classList.remove('locked');
+    document.getElementById('batch-lockable').classList.remove('locked');
+    document.getElementById('tab-lock-url').style.display   = 'none';
+    document.getElementById('tab-lock-batch').style.display = 'none';
+    const b = document.getElementById('nav-status-badge');
+    b.textContent = '✦ Pro Active'; b.className = 'active';
+  }
+
+  function logout() {
+    localStorage.removeItem('trai_token'); localStorage.removeItem('trai_email');
+    isUnlocked = false;
+    document.getElementById('paywall-banner').style.display = '';
+    document.getElementById('active-banner').style.display  = 'none';
+    document.getElementById('url-lockable').classList.add('locked');
+    document.getElementById('batch-lockable').classList.add('locked');
+    document.getElementById('tab-lock-url').style.display   = '';
+    document.getElementById('tab-lock-batch').style.display = '';
+    const b = document.getElementById('nav-status-badge');
+    b.textContent = '🔒 Locked'; b.className = 'locked';
+  }
+
+  async function verifyToken() {
+    const email = document.getElementById('unlock-email').value.trim();
+    const token = document.getElementById('unlock-token').value.trim();
+    if (!email || !token) { setUnlockStatus('error','⚠ Please fill both fields'); return; }
+    setBtnLoading('unlock', true, 'Verifying...');
+    setUnlockStatus('info','⟳ Checking your token...');
+    try {
+      const res  = await fetch(EDGE_VERIFY_TOKEN, { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_ANON}`}, body:JSON.stringify({token,email}) });
+      const data = await res.json();
+      if (data.valid) {
+        localStorage.setItem('trai_token', token); localStorage.setItem('trai_email', email);
+        setUnlockStatus('success','✓ Access granted!');
+        setTimeout(() => { closeUnlockModalDirect(); setUnlocked(email); }, 800);
+      } else { setUnlockStatus('error','✕ Invalid or expired token'); }
+    } catch(e) { setUnlockStatus('error',`✕ ${e.message}`); }
+    finally { setBtnLoading('unlock', false, 'Unlock Access'); }
+  }
+
+  function setUnlockStatus(type, msg) {
+    const el = document.getElementById('unlock-status');
+    el.className = `status-bar ${type}`; el.textContent = msg; el.style.display = 'flex';
+  }
+
+  // ── URL INPUT LIVE DETECTION ─────────────────────────────────────────────────
+  function onUrlInput(val) {
+    const ind = document.getElementById('url-platform-indicator');
+    const ytw = document.getElementById('yt-warning');
+    const p = detectPlatform(val);
+    ind.className = 'url-platform-indicator';
+    ytw.style.display = 'none';
+    if (!val) return;
+    if (p === 'instagram') {
+      ind.textContent = 'Instagram'; ind.classList.add('visible','ig');
+    } else if (p === 'tiktok') {
+      ind.textContent = 'TikTok'; ind.classList.add('visible','tt');
+    } else if (p === 'youtube') {
+      ind.textContent = 'YouTube ✕'; ind.classList.add('visible','yt');
+      ytw.style.display = 'block';
+    } else {
+      ind.textContent = 'unknown'; ind.classList.add('visible');
+    }
+  }
+
+  // ── POLLING ──────────────────────────────────────────────────────────────────
+  async function pollForResult(jobId, elapsedId) {
+    const start = Date.now();
+    return new Promise((resolve, reject) => {
+      const tick = async () => {
+        document.getElementById(elapsedId).textContent = Math.round((Date.now()-start)/1000);
+        if (Date.now()-start > POLL_TIMEOUT) { reject(new Error('Timed out after 5 minutes')); return; }
+        try {
+          const res  = await fetch(`${SUPABASE_URL}/rest/v1/transcripts?id=eq.${jobId}&select=*&limit=1`,
+            { headers:{'apikey':SUPABASE_ANON,'Authorization':`Bearer ${SUPABASE_ANON}`} });
+          const rows = await res.json();
+          if (!rows?.length) { setTimeout(tick, POLL_INTERVAL); return; }
+          const row = rows[0];
+          if (row.status === 'done')  { resolve(row); return; }
+          if (row.status === 'error') { reject(new Error(row.error_message||'Transcription failed')); return; }
+          setTimeout(tick, POLL_INTERVAL);
+        } catch { setTimeout(tick, POLL_INTERVAL); }
+      };
+      tick();
+    });
+  }
+
+  async function pollForBatchResult(batchJobId, elapsedId) {
+    const start = Date.now();
+    return new Promise((resolve, reject) => {
+      const tick = async () => {
+        document.getElementById(elapsedId).textContent = Math.round((Date.now()-start)/1000);
+        if (Date.now()-start > POLL_TIMEOUT) { reject(new Error('Timed out after 5 minutes')); return; }
+        try {
+          const res  = await fetch(`${SUPABASE_URL}/rest/v1/batch_jobs?id=eq.${batchJobId}&select=*&limit=1`,
+            { headers:{'apikey':SUPABASE_ANON,'Authorization':`Bearer ${SUPABASE_ANON}`} });
+          const rows = await res.json();
+          if (!rows?.length) { setTimeout(tick, POLL_INTERVAL); return; }
+          const job = rows[0];
+          if (job.status === 'done') {
+            const tRes = await fetch(`${SUPABASE_URL}/rest/v1/transcripts?batch_job_id=eq.${batchJobId}&select=*`,
+              { headers:{'apikey':SUPABASE_ANON,'Authorization':`Bearer ${SUPABASE_ANON}`} });
+            resolve(await tRes.json());
+          } else if (job.status === 'error') {
+            reject(new Error(job.error_message||'Batch job failed'));
+          } else { setTimeout(tick, POLL_INTERVAL); }
+        } catch { setTimeout(tick, POLL_INTERVAL); }
+      };
+      tick();
+    });
+  }
+
+  // ── URL SUBMIT ───────────────────────────────────────────────────────────────
+  async function submitUrl() {
+    if (!isUnlocked) { openPaywallModal(); return; }
+    const url  = document.getElementById('video-url').value.trim();
+    const lang = document.getElementById('url-lang').value;
+    if (!url) { setStatus('url-status','error','⚠ Please enter a video URL'); return; }
+
+    const platform = detectPlatform(url);
+    if (platform === 'youtube') { setStatus('url-status','warning','⚠ YouTube is not supported — use YouTube\'s built-in transcript instead (··· → Show transcript)'); return; }
+    if (platform !== 'instagram' && platform !== 'tiktok') { setStatus('url-status','error','⚠ Only Instagram and TikTok URLs are supported'); return; }
+
+    document.getElementById('url-result').style.display = 'none';
+    setBtnLoading('url', true, 'Transcribe Video');
+    document.getElementById('url-status').style.display = 'none';
+    ['step-queue','step-scrape','step-deepgram','step-save','step-done'].forEach(id=>setStep(id,''));
+    document.getElementById('url-steps').style.display = 'flex';
+    document.getElementById('url-poll-timer').style.display = 'none';
+
+    try {
+      setStep('step-queue','active');
+      setStatus('url-status','info','⟳ Starting transcription job...');
+
+      const res = await fetch(EDGE_TRANSCRIPT_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_ANON}`,'x-access-token':localStorage.getItem('trai_token')||''},
+        body: JSON.stringify({ video_url: url, language: lang||undefined })
+      });
+      if (!res.ok) { const e=await res.json().catch(()=>({})); throw new Error(e.error||`HTTP ${res.status}`); }
+      const { job_id } = await res.json();
+
+      setStep('step-queue','done'); setStep('step-scrape','active');
+      setStatus('url-status','info','⟳ Scraping video and transcribing — 1–3 minutes...');
+      document.getElementById('url-poll-timer').style.display = 'block';
+
+      const row = await pollForResult(job_id, 'url-elapsed');
+
+      setStep('step-scrape','done'); setStep('step-deepgram','done');
+      setStep('step-save','done'); setStep('step-done','done');
+      document.getElementById('url-poll-timer').style.display = 'none';
+
+      const src = row.transcript_source === 'asr' ? 'TikTok ASR (free)' : 'Deepgram Nova-2';
+      setStatus('url-status','success',`✓ Done — ${row.words||0} words · ${src}`);
+      document.getElementById('url-transcript-text').textContent = row.transcript||'';
+      document.getElementById('url-result-meta').textContent = `${row.platform||platform} · ${row.duration_seconds?fmtDur(row.duration_seconds):''} · ${src}`;
+      document.getElementById('url-result').style.display = 'block';
+      loadRecent();
+
+    } catch(e) {
+      setStatus('url-status','error',`✕ ${e.message}`);
+      document.getElementById('url-poll-timer').style.display = 'none';
+    } finally { setBtnLoading('url', false, 'Transcribe Video'); }
+  }
+
+  // ── BATCH SUBMIT ─────────────────────────────────────────────────────────────
+  async function submitBatch() {
+    if (!isUnlocked) { openPaywallModal(); return; }
+    const platform = document.getElementById('batch-platform').value;
+    const username = document.getElementById('batch-username').value.trim().replace('@','');
+    const count    = parseInt(document.getElementById('batch-count').value);
+    const lang     = document.getElementById('batch-lang').value;
+    if (!username) { setStatus('batch-status','error','⚠ Please enter a username'); return; }
+
+    document.getElementById('batch-result').style.display = 'none';
+    setBtnLoading('batch', true, 'Fetch & Transcribe');
+    document.getElementById('batch-status').style.display = 'none';
+    ['bstep-queue','bstep-scrape','bstep-deepgram','bstep-save','bstep-done'].forEach(id=>setStep(id,''));
+    document.getElementById('batch-steps').style.display = 'flex';
+    document.getElementById('batch-poll-timer').style.display = 'none';
+
+    try {
+      setStep('bstep-queue','active');
+      setStatus('batch-status','info',`⟳ Starting batch job for @${username}...`);
+
+      const res = await fetch(EDGE_TRANSCRIPT_BATCH, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_ANON}`,'x-access-token':localStorage.getItem('trai_token')||''},
+        body: JSON.stringify({ platform, username, count, language: lang||undefined })
+      });
+      if (!res.ok) { const e=await res.json().catch(()=>({})); throw new Error(e.error||`HTTP ${res.status}`); }
+      const { batch_job_id } = await res.json();
+
+      setStep('bstep-queue','done'); setStep('bstep-scrape','active');
+      setStatus('batch-status','info','⟳ Fetching and transcribing videos — a few minutes...');
+      document.getElementById('batch-poll-timer').style.display = 'block';
+
+      const transcripts = await pollForBatchResult(batch_job_id, 'batch-elapsed');
+
+      setStep('bstep-scrape','done'); setStep('bstep-deepgram','done');
+      setStep('bstep-save','done'); setStep('bstep-done','done');
+      document.getElementById('batch-poll-timer').style.display = 'none';
+
+      setStatus('batch-status','success',`✓ ${transcripts.length} transcripts ready`);
+      renderBatchResults(transcripts, platform, username);
+      loadRecent();
+
+    } catch(e) {
+      setStatus('batch-status','error',`✕ ${e.message}`);
+      document.getElementById('batch-poll-timer').style.display = 'none';
+    } finally { setBtnLoading('batch', false, 'Fetch & Transcribe'); }
+  }
+
+  function renderBatchResults(results, platform, username) {
+    const c = document.getElementById('batch-items-container');
+    c.innerHTML = '';
+    document.getElementById('batch-result-meta').textContent = `${results.length} videos · @${username}`;
+    results.forEach((r,i) => {
+      const src = r.transcript_source === 'asr' ? 'TikTok ASR' : 'Deepgram';
+      const el  = document.createElement('div');
+      el.className = 'batch-item';
+      el.innerHTML = `
+        <div class="batch-item-header" onclick="this.closest('.batch-item').classList.toggle('open')">
+          <div class="batch-item-title">
+            <span class="platform-badge ${platform}">${platform}</span>
+            <span class="batch-item-title-text">${escHtml(r.title||r.video_url||`Video ${i+1}`)}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+            <span style="font-size:10px;color:var(--success)">${r.words||'?'} words</span>
+            <span class="chevron">▾</span>
+          </div>
+        </div>
+        <div class="batch-item-body">
+          ${escHtml(r.transcript||'No transcript available')}
+          <div class="batch-item-stats">
+            <span class="batch-stat">Source: <strong>${src}</strong></span>
+            ${r.duration_seconds?`<span class="batch-stat">Duration: <strong>${fmtDur(r.duration_seconds)}</strong></span>`:''}
+            ${r.language?`<span class="batch-stat">Lang: <strong>${r.language}</strong></span>`:''}
+            ${r.confidence?`<span class="batch-stat">Confidence: <strong>${Math.round(r.confidence*100)}%</strong></span>`:''}
+          </div>
+        </div>
+      `;
+      c.appendChild(el);
+    });
+    document.getElementById('batch-result').style.display = 'block';
+  }
+
+  // ── RECENT TABLE ─────────────────────────────────────────────────────────────
+  async function loadRecent() {
+    const tbody = document.getElementById('recent-tbody');
+    const email = localStorage.getItem('trai_email');
+
+    // Don't load anyone's transcripts if user not logged in
+    if (!email) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px 0;font-size:12px;">Unlock access to view your transcript history</td></tr>`;
+      return;
+    }
+
+    try {
+      // Filter by user email so users only see their own transcripts
+      const emailEncoded = encodeURIComponent(email.toLowerCase().trim());
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/transcripts?select=id,video_url,platform,words,duration_seconds,transcript_source,created_at,transcript&status=eq.done&user_email=eq.${emailEncoded}&order=created_at.desc&limit=10`,
+        { headers:{'apikey':SUPABASE_ANON,'Authorization':`Bearer ${SUPABASE_ANON}`} }
+      );
+      if (!res.ok) throw new Error();
+      const rows = await res.json();
+
+      // If email column doesn't exist yet, rows will be empty array — that's fine
+      renderTable(rows);
+    } catch {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px 0;font-size:12px;">Could not load history</td></tr>`;
+    }
+  }
+
+  function renderTable(rows) {
+    const tbody = document.getElementById('recent-tbody');
+    if (!rows.length) { tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:28px 0;font-size:12px;">No transcripts yet</td></tr>`; return; }
+    tbody.innerHTML = rows.map(r => {
+      const p  = r.platform||detectPlatform(r.video_url);
+      const tc = {instagram:'tag-ig',tiktok:'tag-tt'}[p]||'tag-url';
+      const src = r.transcript_source === 'asr' ? '<span style="color:var(--success);font-size:10px;">ASR</span>' : '<span style="color:var(--muted);font-size:10px;">DG</span>';
+      return `<tr>
+        <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(truncUrl(r.video_url))}</td>
+        <td><span class="tag ${tc}">${p}</span></td>
+        <td style="color:var(--success)">${r.words||'—'}</td>
+        <td>${src}</td>
+        <td>${r.created_at?new Date(r.created_at).toLocaleDateString():'—'}</td>
+        <td><a class="view-link" href="#" onclick="openModal(${JSON.stringify(r).replace(/"/g,'&quot;')});return false">view →</a></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── MODALS ───────────────────────────────────────────────────────────────────
+  function openModal(row) {
+    document.getElementById('modal-title-text').textContent     = truncUrl(row.video_url)||'Transcript';
+    document.getElementById('modal-meta').textContent           = `${row.video_url}\n${row.platform||''} · ${row.words||0} words · ${row.transcript_source==='asr'?'TikTok ASR':'Deepgram'} · ${row.created_at?new Date(row.created_at).toLocaleString():''}`;
+    document.getElementById('modal-transcript-text').textContent = row.transcript||'—';
+    document.getElementById('transcript-modal').classList.add('open');
+  }
+  function closeModalDirect()        { document.getElementById('transcript-modal').classList.remove('open'); }
+  function openPaywallModal()        { document.getElementById('paywall-modal').classList.add('open'); }
+  function closePaywallModalDirect() { document.getElementById('paywall-modal').classList.remove('open'); }
+  function openUnlockModal()         { document.getElementById('unlock-modal').classList.add('open'); }
+  function closeUnlockModalDirect()  { document.getElementById('unlock-modal').classList.remove('open'); }
+
+  // ── UTILS ────────────────────────────────────────────────────────────────────
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',(i===0&&tab==='url')||(i===1&&tab==='batch')));
+    document.getElementById('panel-url').classList.toggle('active',tab==='url');
+    document.getElementById('panel-batch').classList.toggle('active',tab==='batch');
+  }
+  function updatePlaceholder() {
+    const m={instagram:'@natgeo',tiktok:'@charlidamelio'};
+    document.getElementById('batch-username').placeholder=m[document.getElementById('batch-platform').value]||'@username';
+  }
+  function setStep(id,state){const el=document.getElementById(id);if(el)el.className=`step ${state}`;}
+  function setStatus(id,type,msg){const el=document.getElementById(id);el.className=`status-bar ${type}`;el.textContent=msg;el.style.display='flex';}
+  function setBtnLoading(prefix,loading,label){
+    document.getElementById(`${prefix}-btn`).disabled=loading;
+    document.getElementById(`${prefix}-spinner`).style.display=loading?'block':'none';
+    document.getElementById(`${prefix}-btn-text`).textContent=loading?'Processing...':label;
+  }
+  function copyText(elId, btnId) {
+    const text = document.getElementById(elId).textContent;
+    navigator.clipboard.writeText(text).then(()=>{
+      const btn = document.getElementById(btnId);
+      if(btn){ btn.textContent='copied ✓'; btn.classList.add('copied'); setTimeout(()=>{ btn.textContent='copy transcript'; btn.classList.remove('copied'); },2000); }
+    }).catch(()=>{ /* fallback */ });
+  }
+  const escHtml=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const truncUrl=u=>{try{const p=new URL(u);return p.hostname+p.pathname.substring(0,30)+(p.pathname.length>30?'...':'');}catch{return u||'';}};
+  const fmtDur=s=>`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+  const detectPlatform=(u='')=>/youtube\.com|youtu\.be/.test(u)?'youtube':/instagram\.com/.test(u)?'instagram':/tiktok\.com/.test(u)?'tiktok':'unknown';
+
+
+  // ── HISTORY DRAWER ──────────────────────────────────────────────────────────
+  let _histAll = [];
+  let _histLoaded = false;
+
+  async function openDrawer() {
+    document.getElementById('hist-overlay').classList.add('open');
+    document.getElementById('hist-drawer').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (!_histLoaded) await _loadAllHistory();
+  }
+  function closeDrawer() {
+    document.getElementById('hist-overlay').classList.remove('open');
+    document.getElementById('hist-drawer').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+  async function _loadAllHistory() {
+    const email = localStorage.getItem('trai_email');
+    if (!email) {
+      document.getElementById('hist-list').innerHTML = '<div style="color:var(--muted);font-size:12px;padding:24px;text-align:center;">Unlock access to view your history</div>';
+      return;
+    }
+    document.getElementById('hist-list').innerHTML = '<div style="color:var(--muted);font-size:12px;padding:24px;text-align:center;">Loading your transcripts...</div>';
+    try {
+      const emailEncoded = encodeURIComponent(email.toLowerCase().trim());
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/transcripts?select=id,video_url,platform,words,transcript_source,created_at,transcript&status=eq.done&user_email=eq.${emailEncoded}&order=created_at.desc&limit=500`,
+        { headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` } }
+      );
+      if (!res.ok) throw new Error();
+      _histAll = await res.json();
+      _histLoaded = true;
+      document.getElementById('hist-count').textContent = `${_histAll.length} total`;
+      _renderHistory(_histAll);
+    } catch {
+      document.getElementById('hist-list').innerHTML = '<div style="color:var(--danger);font-size:12px;padding:24px;text-align:center;">Could not load history</div>';
+    }
+  }
+
+  // Store rows in a map so drawer items can reference by index (avoids inline JSON/quote escaping)
+  let _histRowMap = {};
+
+  function _renderHistory(rows) {
+    const c = document.getElementById('hist-list');
+    if (!rows.length) {
+      c.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:24px;text-align:center;">No transcripts found</div>';
+      return;
+    }
+    _histRowMap = {};
+    c.innerHTML = rows.map((r, idx) => {
+      _histRowMap[idx] = r;
+      const p    = r.platform || detectPlatform(r.video_url || '');
+      const icon = p === 'instagram' ? '\u{1F4F8}' : p === 'tiktok' ? '\u{1F3B5}' : '\u{1F517}';
+      const cls  = p === 'instagram' ? 'ig' : p === 'tiktok' ? 'tt' : 'uk';
+      const src  = r.transcript_source === 'asr' ? 'asr' : 'dg';
+      const srcL = r.transcript_source === 'asr' ? 'ASR' : 'DG';
+      const date = r.created_at ? new Date(r.created_at).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'2-digit' }) : '';
+      return `<div class="drow" data-hidx="${idx}">
+        <div class="drow-icon ${cls}">${icon}</div>
+        <div class="drow-body">
+          <div class="drow-url">${escHtml(truncUrl(r.video_url || ''))}</div>
+          <div class="drow-meta">
+            <span class="drow-words">${r.words || 0}w</span>
+            <span class="drow-src ${src}">${srcL}</span>
+            <span class="drow-date">${date}</span>
+          </div>
+        </div>
+        <span class="drow-arrow">›</span>
+      </div>`;
+    }).join('');
+
+    // Attach click handlers after rendering — safe, no quote-escaping issues
+    c.querySelectorAll('.drow[data-hidx]').forEach(el => {
+      el.addEventListener('click', () => {
+        const row = _histRowMap[parseInt(el.dataset.hidx)];
+        if (row) { openModal(row); closeDrawer(); }
+      });
+    });
+  }
+
+  function filterHistory(q) {
+    if (!q.trim()) { _renderHistory(_histAll); return; }
+    const lq = q.toLowerCase();
+    _renderHistory(_histAll.filter(r =>
+      (r.video_url || '').toLowerCase().includes(lq) ||
+      (r.platform  || '').toLowerCase().includes(lq) ||
+      (r.transcript|| '').toLowerCase().includes(lq)
+    ));
+  }
+
+  function openModalFromEncoded(encoded) {
+    try { openModal(JSON.parse(decodeURIComponent(encoded))); } catch {}
+  }
+  // ── INIT ─────────────────────────────────────────────────────────────────────
+  checkStoredToken();
+</script>
+
+<!-- PAYPAL SUBSCRIPTION SDK -->
+<!-- IMPORTANT: Replace YOUR_PAYPAL_CLIENT_ID with your PayPal app client ID -->
+<!-- and YOUR_PLAN_ID with your PayPal subscription plan ID (PROD-xxx) -->
+<script>
+  const PAYPAL_CLIENT_ID = 'AdcFI5LChK2-GIloE2Azd4PXGaYUXK6Uv0bgjFYZeT_fa6IoyykOg_1XMeHteN2eTWMLl9jcAdgWiMeN'; // ← paste your client ID here
+  const PAYPAL_PLAN_ID   = 'P-57R49446UW629272WNGW2IAI';           // ← paste your subscription plan ID here
+
+  function loadPayPalSDK(callback) {
+    if (window.paypal) { callback(); return; }
+    const s = document.createElement('script');
+    s.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&vault=true&intent=subscription`;
+    s.setAttribute('data-sdk-integration-source', 'button-factory');
+    s.onload = callback;
+    document.head.appendChild(s);
+  }
+
+  function renderPayPalButtons(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container || container.dataset.rendered === '1') return;
+    container.dataset.rendered = '1';
+
+    loadPayPalSDK(() => {
+      paypal.Buttons({
+        style: {
+          shape: 'rect', color: 'blue', layout: 'vertical',
+          label: 'subscribe', height: 45
+        },
+        createSubscription: (data, actions) => actions.subscription.create({ plan_id: PAYPAL_PLAN_ID }),
+        onApprove: async (data) => {
+          // data.subscriptionID is the PayPal subscription ID
+          // Call your Supabase edge function to verify + activate
+          try {
+            const email = localStorage.getItem('trai_email') || '';
+            const res = await fetch(`${EDGE_VERIFY_TOKEN}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON}` },
+              body: JSON.stringify({ paypal_subscription_id: data.subscriptionID, email })
+            });
+            const result = await res.json();
+            if (result.valid && result.token) {
+              localStorage.setItem('trai_token', result.token);
+              localStorage.setItem('trai_email', result.email || email);
+              closePaywallModalDirect();
+              setUnlocked(result.email || email);
+            } else {
+              alert('Subscription confirmed! Please enter your email and the token sent to you, or contact support.');
+              closePaywallModalDirect();
+              openUnlockModal();
+            }
+          } catch (err) {
+            alert('Payment successful! Please use "Enter Access Token" to activate. Contact support if needed.');
+            closePaywallModalDirect();
+            openUnlockModal();
+          }
+        },
+        onError: (err) => {
+          console.error('PayPal error', err);
+          alert('PayPal encountered an error. Please try again.');
+        }
+      }).render(`#${containerId}`);
+    });
+  }
+
+  // Render PayPal buttons when paywall is opened
+  const _origOpenPaywallModal = openPaywallModal;
+  openPaywallModal = function() {
+    _origOpenPaywallModal();
+    setTimeout(() => renderPayPalButtons('paypal-modal-btn-container'), 50);
+  };
+
+  // Also render in the banner on page load (after a short delay so DOM is ready)
+  window.addEventListener('load', () => {
+    setTimeout(() => renderPayPalButtons('paypal-banner-btn-container'), 300);
+  });
+</script>
+
+<!-- TRANSCRIPT HISTORY DRAWER -->
+<div class="drawer-overlay" id="hist-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="hist-drawer">
+  <div class="drawer-head">
+    <div class="drawer-head-left">
+      <div class="drawer-title-text">Transcript History</div>
+      <span class="drawer-count-badge" id="hist-count"></span>
+    </div>
+    <button class="modal-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-search-wrap">
+    <input type="text" id="hist-search" placeholder="Search URL, platform, transcript text..." oninput="filterHistory(this.value)" />
+  </div>
+  <div class="drawer-scroll" id="hist-list">
+    <div style="color:var(--muted);font-size:12px;padding:24px;text-align:center;">Loading...</div>
+  </div>
+</div>
+
+</body>
+</html>

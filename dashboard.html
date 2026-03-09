@@ -1,0 +1,335 @@
+l<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Dashboard - SocialMetrics AI</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ig: #e1306c;
+            --ig2: #f77737;
+            --accent: #6366f1;
+            --accent2: #818cf8;
+            --green: #10b981;
+            --bg: #050508;
+            --card: rgba(255,255,255,0.03);
+            --border: rgba(255,255,255,0.07);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { opacity: 0; transition: opacity 0.5s ease; background: var(--bg); color: white; overflow-x: hidden; font-family: 'Outfit', sans-serif; }
+        body.auth-ready { opacity: 1; }
+        .hidden { display: none !important; }
+        .node-locked { cursor: not-allowed; position: relative; }
+        .platform-select-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.2rem 1.4rem; display: flex; flex-direction: column; gap: 0.4rem; position: relative; overflow: hidden; transition: border-color 0.3s; }
+        .stat-card:hover { border-color: rgba(99,102,241,0.4); }
+        .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--accent),transparent); opacity:0.6; }
+        .stat-label { font-size: 0.65rem; letter-spacing: 2px; color: #475569; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+        .stat-value { font-size: 1.8rem; font-weight: 900; color: white; line-height: 1; }
+        .stat-sub { font-size: 0.72rem; color: #475569; }
+        .stat-icon { position:absolute; right:1rem; top:50%; transform:translateY(-50%); font-size:1.8rem; opacity:0.12; }
+
+        .main-grid { display: grid; grid-template-columns: 1fr 290px; gap: 1.5rem; align-items: start; }
+        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+        .panel-box { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 1.8rem; position: relative; overflow: hidden; }
+        .panel-box + .panel-box { margin-top: 1.5rem; }
+        .panel-box::after { content:''; position:absolute; bottom:-60px; right:-60px; width:180px; height:180px; background:radial-gradient(circle,rgba(225,48,108,0.1),transparent 70%); border-radius:50%; pointer-events:none; }
+
+        .section-label { font-size: 0.62rem; letter-spacing: 3px; color: #334155; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; margin-bottom: 1.2rem; }
+
+        .platform-select-card { background: linear-gradient(135deg,rgba(225,48,108,0.08),rgba(247,119,55,0.04)); border: 1px solid rgba(225,48,108,0.2); border-radius: 16px; padding: 1.6rem; display: flex; align-items: center; gap: 1.2rem; cursor: pointer; }
+        .platform-select-card:hover { border-color: rgba(225,48,108,0.5); background: linear-gradient(135deg,rgba(225,48,108,0.14),rgba(247,119,55,0.08)); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(225,48,108,0.15); }
+        .plat-icon { width:52px; height:52px; background:linear-gradient(135deg,var(--ig),var(--ig2)); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0; box-shadow:0 4px 16px rgba(225,48,108,0.3); }
+        .plat-info { flex: 1; }
+        .plat-info h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.2rem; }
+        .plat-info p { font-size: 0.73rem; color: #64748b; line-height: 1.4; }
+        .btn-select-platform { background:linear-gradient(135deg,var(--ig),var(--ig2)); border:none; color:white; padding:0.6rem 1.2rem; border-radius:8px; font-size:0.68rem; font-weight:700; letter-spacing:1.5px; cursor:pointer; font-family:'JetBrains Mono',monospace; white-space:nowrap; transition:opacity 0.2s; flex-shrink:0; }
+        .btn-select-platform:hover { opacity:0.85; }
+
+        .how-divider { border-top: 1px solid var(--border); margin: 1.5rem 0; }
+        .steps-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+        .step-item { text-align: center; padding: 0.8rem 0.3rem; }
+        .step-num { width:26px; height:26px; background:rgba(99,102,241,0.12); border:1px solid rgba(99,102,241,0.25); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:700; color:var(--accent2); margin:0 auto 0.5rem; font-family:'JetBrains Mono',monospace; }
+        .step-title { font-size: 0.68rem; font-weight: 700; color: white; margin-bottom: 0.2rem; }
+        .step-desc { font-size: 0.62rem; color: #475569; line-height: 1.4; }
+
+        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; margin-top: 0.2rem; }
+        .feat-chip { background:rgba(99,102,241,0.05); border:1px solid rgba(99,102,241,0.1); border-radius:10px; padding:0.8rem 0.7rem; }
+        .feat-icon { font-size: 1rem; margin-bottom: 0.4rem; }
+        .feat-title { font-size: 0.7rem; font-weight: 700; color: white; margin-bottom: 0.2rem; }
+        .feat-desc { font-size: 0.62rem; color: #475569; line-height: 1.3; }
+
+        .right-panel { display: flex; flex-direction: column; gap: 1.2rem; }
+        .rpanel { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.3rem; }
+        .rpanel h4 { font-size: 0.62rem; letter-spacing: 2px; color: #334155; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; margin-bottom: 1rem; }
+
+        .sub-pill { display:flex; align-items:center; gap:0.6rem; padding:0.65rem 0.9rem; border-radius:9px; font-size:0.78rem; font-weight:600; margin-bottom:0.8rem; }
+        .sub-pill.active { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); color:var(--green); }
+        .sub-pill.inactive { background:rgba(239,68,68,0.07); border:1px solid rgba(239,68,68,0.18); color:#ef4444; }
+        .sub-dot { width:6px; height:6px; border-radius:50%; background:currentColor; animation:blink 1.5s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .sub-detail { font-size:0.7rem; color:#475569; }
+        .sub-detail span { color:#94a3b8; }
+        .btn-manage { display:block; width:100%; margin-top:0.9rem; padding:0.55rem; background:transparent; border:1px solid var(--border); color:#64748b; border-radius:8px; font-size:0.7rem; cursor:pointer; text-align:center; text-decoration:none; transition:all 0.2s; font-family:'Outfit',sans-serif; }
+        .btn-manage:hover { border-color:var(--accent); color:var(--accent2); }
+
+        .qlink { display:flex; align-items:center; gap:0.8rem; padding:0.65rem 0.7rem; border-radius:9px; border:1px solid transparent; cursor:pointer; transition:all 0.2s; text-decoration:none; color:#94a3b8; font-size:0.78rem; }
+        .qlink:hover { background:rgba(255,255,255,0.04); border-color:var(--border); color:white; }
+        .qlink-icon { width:28px; height:28px; border-radius:7px; background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0; }
+
+        .ritem { display:flex; align-items:center; gap:0.8rem; padding:0.55rem 0; border-bottom:1px solid var(--border); text-decoration:none; transition:opacity 0.2s; }
+        .ritem:last-child { border-bottom:none; }
+        .ritem:hover { opacity:0.75; }
+        .rdot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+        .rname { font-size:0.75rem; color:#94a3b8; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .rdate { font-size:0.62rem; color:#334155; font-family:'JetBrains Mono',monospace; flex-shrink:0; }
+        .rempty { font-size:0.72rem; color:#334155; text-align:center; padding:1rem 0; font-family:'JetBrains Mono',monospace; }
+
+        @media (max-width: 600px) {
+            .stats-row { grid-template-columns: 1fr 1fr; }
+            .steps-row { grid-template-columns: repeat(2, 1fr); }
+            .features-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body class="dashboard-page">
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo"><span class="logo-icon">⚡</span><span class="logo-text">SocialMetrics</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item active"><span class="nav-icon">🏠</span><span class="nav-label">Neural Node</span></a>
+            <a href="reports.html" class="nav-item"><span class="nav-icon">📊</span><span class="nav-label">Archives</span></a>
+            <a href="transcript-tool.html" class="nav-item"><span class="nav-icon">📝</span><span class="nav-label">Transcript Tool</span></a>
+            <a href="billing.html" class="nav-item"><span class="nav-icon">💳</span><span class="nav-label">Billing</span></a>
+            <a href="settings.html" class="nav-item"><span class="nav-icon">⚙️</span><span class="nav-label">Settings</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="user-avatar" id="userInitials">?</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Syncing...</div>
+                    <div class="user-email" id="userEmail">...</div>
+                </div>
+            </div>
+            <button class="btn-logout" id="logoutBtn">Logout</button>
+        </div>
+    </aside>
+
+    <main class="dashboard-main">
+        <header class="dashboard-header">
+            <h1 id="welcomeText">SYSTEM INITIALIZING...</h1>
+            <p class="text-secondary">Select a platform node to initiate neural extraction.</p>
+        </header>
+
+        <!-- STATS -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-label">Reports Run</div>
+                <div class="stat-value" id="statReports">—</div>
+                <div class="stat-sub">total analyses</div>
+                <div class="stat-icon">📊</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Last Scan</div>
+                <div class="stat-value" id="statLastScan" style="font-size:1rem;padding-top:0.5rem;color:#94a3b8;">—</div>
+                <div class="stat-sub">most recent</div>
+                <div class="stat-icon">🕒</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Access</div>
+                <div class="stat-value" id="statStatus" style="font-size:0.85rem;padding-top:0.5rem;color:#475569;">CHECKING...</div>
+                <div class="stat-sub">subscription</div>
+                <div class="stat-icon">🔑</div>
+            </div>
+        </div>
+
+        <!-- MAIN GRID -->
+        <div class="main-grid">
+            <div>
+                <!-- LAUNCH -->
+                <div class="panel-box">
+                    <div class="section-label">▸ Platform Node</div>
+                    <div class="platform-select-card" data-platform="instagram">
+                        <div class="plat-icon">📸</div>
+                        <div class="plat-info">
+                            <h3>Instagram Analysis</h3>
+                            <p>AI deep-dive into reels, hooks, engagement & 7-day growth strategy.</p>
+                        </div>
+                        <button class="btn-select-platform">INITIATE</button>
+                    </div>
+
+                    <div class="how-divider"></div>
+                    <div class="section-label">▸ How It Works</div>
+                    <div class="steps-row">
+                        <div class="step-item">
+                            <div class="step-num">01</div>
+                            <div class="step-title">Enter Handle</div>
+                            <div class="step-desc">Any public Instagram @username</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-num">02</div>
+                            <div class="step-title">Scrape</div>
+                            <div class="step-desc">We pull reels, captions & profile data</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-num">03</div>
+                            <div class="step-title">AI Analysis</div>
+                            <div class="step-desc">Claude scores hooks, reach & niche fit</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-num">04</div>
+                            <div class="step-title">Get Report</div>
+                            <div class="step-desc">Full strategy with action plan ready</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WHAT YOU GET -->
+                <div class="panel-box">
+                    <div class="section-label">▸ What's In Every Report</div>
+                    <div class="features-grid">
+                        <div class="feat-chip">
+                            <div class="feat-icon">🎯</div>
+                            <div class="feat-title">Hook Analysis</div>
+                            <div class="feat-desc">First-3-second scoring on every reel</div>
+                        </div>
+                        <div class="feat-chip">
+                            <div class="feat-icon">📈</div>
+                            <div class="feat-title">Engagement Rate</div>
+                            <div class="feat-desc">Benchmarked vs niche average</div>
+                        </div>
+                        <div class="feat-chip">
+                            <div class="feat-icon">🏷️</div>
+                            <div class="feat-title">Hashtag Audit</div>
+                            <div class="feat-desc">Find tags killing your reach</div>
+                        </div>
+                        <div class="feat-chip">
+                            <div class="feat-icon">🤖</div>
+                            <div class="feat-title">Reel Scripts</div>
+                            <div class="feat-desc">AI-written hooks for your niche</div>
+                        </div>
+                        <div class="feat-chip">
+                            <div class="feat-icon">🗓️</div>
+                            <div class="feat-title">7-Day Plan</div>
+                            <div class="feat-desc">Daily tasks to grow faster</div>
+                        </div>
+                        <div class="feat-chip">
+                            <div class="feat-icon">🔮</div>
+                            <div class="feat-title">Growth Forecast</div>
+                            <div class="feat-desc">Projection based on trajectory</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT -->
+            <div class="right-panel">
+                <div class="rpanel">
+                    <h4>Subscription</h4>
+                    <div id="subStatusPill" class="sub-pill inactive">
+                        <div class="sub-dot"></div>
+                        <span id="subStatusText">Checking...</span>
+                    </div>
+                    <div class="sub-detail" id="subDetail">—</div>
+                    <a href="billing.html" class="btn-manage">Manage Subscription →</a>
+                </div>
+
+                <div class="rpanel">
+                    <h4>Quick Access</h4>
+                    <a href="reports.html" class="qlink"><div class="qlink-icon">📄</div>View All Reports</a>
+                    <a href="transcript-tool.html" class="qlink"><div class="qlink-icon">📝</div>Transcript Tool</a>
+                    <a href="billing.html" class="qlink"><div class="qlink-icon">💳</div>Billing & Plans</a>
+                    <a href="settings.html" class="qlink"><div class="qlink-icon">⚙️</div>Settings</a>
+                </div>
+
+                <div class="rpanel">
+                    <h4>Recent Reports</h4>
+                    <div id="recentReportsList"><div class="rempty">Loading...</div></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+    (async () => {
+        await new Promise(r => window.addEventListener('load', r));
+        await new Promise(r => setTimeout(r, 900));
+        try {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) return;
+
+            // Sub status with fallback
+            const { data: sub } = await supabaseClient
+                .from('user_subscriptions')
+                .select('plan_id, status, current_period_end, subscription_plans(plan_name)')
+                .eq('user_id', user.id).eq('status', 'active').maybeSingle();
+
+            const pill = document.getElementById('subStatusPill');
+            const pillTxt = document.getElementById('subStatusText');
+            const detail = document.getElementById('subDetail');
+            const statSt = document.getElementById('statStatus');
+
+            if (sub) {
+                let planName = sub.subscription_plans?.plan_name;
+                if (!planName && sub.plan_id) {
+                    const { data: p } = await supabaseClient.from('subscription_plans').select('plan_name').eq('id', sub.plan_id).single();
+                    planName = p?.plan_name || 'Active Plan';
+                }
+                pill.className = 'sub-pill active';
+                pillTxt.textContent = planName || 'Active Plan';
+                const exp = sub.current_period_end ? new Date(sub.current_period_end).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : 'Ongoing';
+                detail.innerHTML = `Renews: <span>${exp}</span>`;
+                statSt.textContent = 'ACTIVE';
+                statSt.style.color = '#10b981';
+            } else {
+                pill.className = 'sub-pill inactive';
+                pillTxt.textContent = 'No Active Plan';
+                detail.innerHTML = `<a href="billing.html" style="color:#6366f1;text-decoration:none;font-size:0.72rem;">Subscribe to unlock →</a>`;
+                statSt.textContent = 'LOCKED';
+                statSt.style.color = '#ef4444';
+            }
+
+            // Recent reports
+            const { data: reports } = await supabaseClient
+                .from('reports').select('id, username, created_at, status')
+                .eq('user_id', user.id).order('created_at',{ascending:false}).limit(5);
+
+            const listEl = document.getElementById('recentReportsList');
+            if (reports?.length) {
+                document.getElementById('statReports').textContent = reports.length >= 5 ? '5+' : String(reports.length);
+                const ls = document.getElementById('statLastScan');
+                ls.textContent = new Date(reports[0].created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+                ls.style.cssText = 'font-size:1.2rem;color:white;padding-top:0;';
+                listEl.innerHTML = reports.map(r => {
+                    const date = new Date(r.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+                    const color = r.status==='completed' ? '#10b981' : '#e1306c';
+                    return `<a href="reports.html?id=${r.id}" class="ritem">
+                        <div class="rdot" style="background:${color}"></div>
+                        <div class="rname">@${r.username||'unknown'}</div>
+                        <div class="rdate">${date}</div>
+                    </a>`;
+                }).join('');
+            } else {
+                document.getElementById('statReports').textContent = '0';
+                document.getElementById('statLastScan').textContent = 'Never';
+                listEl.innerHTML = '<div class="rempty">No reports yet.<br>Run your first scan ↑</div>';
+            }
+        } catch(e) { console.warn('Panel error:', e); }
+    })();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
+</body>
+</html>

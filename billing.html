@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing - SocialMetrics AI</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .badge-high-demand {
+            position: absolute; top: 15px; right: -30px;
+            background: #ff4444; color: white; padding: 5px 35px;
+            transform: rotate(45deg); font-size: 0.7rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3); z-index: 10;
+        }
+        #card-instagram { position: relative; overflow: hidden; }
+        .old-price { text-decoration: line-through; opacity: 0.5; font-size: 0.7em; margin-right: 5px; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-page">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">📊</span>
+                    <span class="logo-text">SocialMetrics</span>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Dashboard</span></a>
+                <a href="reports.html" class="nav-item"><span class="nav-icon">📄</span><span class="nav-label">My Reports</span></a>
+                <a href="billing.html" class="nav-item active"><span class="nav-icon">💳</span><span class="nav-label">Billing</span></a>
+                <a href="settings.html" class="nav-item"><span class="nav-icon">⚙️</span><span class="nav-label">Settings</span></a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">👤</div>
+                    <div class="user-info">
+                        <div class="user-name" id="displayUserName">Loading...</div>
+                        <div class="user-email" id="displayUserEmail">...</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="dashboard-main">
+            <div class="dashboard-header">
+                <div class="header-left">
+                    <h1>Subscription Matrix</h1>
+                    <p>Unlock premium AI processing power</p>
+                </div>
+            </div>
+
+            <!-- Current Status -->
+            <section style="margin-bottom: 3rem;">
+                <h2 class="section-heading">Current Status</h2>
+                <div class="glass-card" style="padding: 2rem; border: 1px dashed rgba(255,255,255,0.1); text-align: center;">
+                    <p id="currentPlanStatus">Scanning for active plans...</p>
+                </div>
+            </section>
+
+            <!-- Plan Card -->
+            <section>
+                <h2 class="section-heading">Select Access Node</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                    <div class="pricing-card featured" id="card-instagram" style="max-width:380px;margin:0 auto;width:100%;">
+                        <div class="badge-high-demand">High Demand</div>
+                        <div style="text-align: center; margin-bottom: 2rem;">
+                            <div style="font-size: 3.5rem; margin-bottom: 1rem;">📸</div>
+                            <h3 style="font-size:1.5rem;">Insta Architect</h3>
+                            <div class="price-tag">$<span id="price-instagram">20.00</span><span>/mo</span></div>
+                        </div>
+                        <ul class="plan-features">
+                            <li>✓ AI-Powered Instagram Report</li>
+                            <li>✓ Profile Growth Logic</li>
+                            <li>✓ Hook &amp; Script Analysis</li>
+                            <li>✓ Competitor Benchmarking</li>
+                            <li>✓ 7-Day Action Plan</li>
+                        </ul>
+                        <div id="paypal-billing-btn-container" style="margin-top:1.5rem;min-height:55px;"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Promo Code -->
+            <section style="margin-top: 3rem; padding: 2rem; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
+                <h3>Apply Promo Payload</h3>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem; max-width: 500px;">
+                    <input type="text" id="discountCode" placeholder="ENTER_CODE"
+                        style="flex:1;padding:1rem;background:#000;border:1px solid #334155;border-radius:8px;color:#6366f1;font-family:'Outfit',sans-serif;">
+                    <button onclick="applyDiscount()"
+                        style="padding:0 2rem;background:#1e293b;color:white;border:1px solid #334155;border-radius:8px;cursor:pointer;font-family:'Outfit',sans-serif;">
+                        Apply
+                    </button>
+                </div>
+                <div id="discountMsg" style="margin-top: 1rem; font-family: monospace; font-size: 0.9rem;"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/billing.js"></script>
+</body>
+</html>

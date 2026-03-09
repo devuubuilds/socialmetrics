@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Reports - SocialMetrics</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="dashboard-page">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <aside class="sidebar">
+            <div class="sidebar-header"><a href="index.html" class="logo"><span class="logo-icon">📊</span><span class="logo-text">SocialMetrics</span></a></div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Dashboard</span></a>
+                <a href="reports.html" class="nav-item active"><span class="nav-icon">📄</span><span class="nav-label">My Reports</span></a>
+                <a href="billing.html" class="nav-item"><span class="nav-icon">💳</span><span class="nav-label">Billing</span></a>
+                <a href="settings.html" class="nav-item"><span class="nav-icon">⚙️</span><span class="nav-label">Settings</span></a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-profile"><div class="user-avatar">JD</div><div class="user-info"><div class="user-name">John</div><div class="user-email">user@example.com</div></div></div>
+                <button class="btn-logout"><span>🚪</span><span>Logout</span></button>
+            </div>
+        </aside>
+        <main class="dashboard-main">
+            <div class="dashboard-header">
+                <div class="header-left"><h1>My Reports</h1><p>View and manage all your analysis reports</p></div>
+                <div style="display: flex; gap: 1rem;">
+                    <select id="platformFilter" style="padding: 0.75rem 1rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary);">
+                        <option value="all">All Platforms</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="tiktok">TikTok</option>
+                    </select>
+                    <select id="statusFilter" style="padding: 0.75rem 1rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary);">
+                        <option value="all">All Status</option>
+                        <option value="completed">Completed</option>
+                        <option value="processing">Processing</option>
+                        <option value="failed">Failed</option>
+                    </select>
+                </div>
+            </div>
+            <div id="reportsList" class="reports-grid">
+                <div style="text-align: center; padding: 4rem; color: var(--text-secondary);">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">📊</div>
+                    <h3>No Reports Yet</h3>
+                    <p>Create your first analysis from the dashboard</p>
+                    <a href="dashboard.html" class="btn-primary" style="display: inline-block; margin-top: 1rem; padding: 1rem 2rem; text-decoration: none;">Go to Dashboard</a>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="js/reports.js"></script>
+    <script>
+    const SUPABASE_URL = "https://mtqnkdblgieliqkthasc.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10cW5rZGJsZ2llbGlxa3RoYXNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3MDAyNjIsImV4cCI6MjA4NTI3NjI2Mn0.-trmIlrF9SUnrEJD9Y-K3doiPcT0YOwiwtLwQtixh0I";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function checkAuth() {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) {
+            window.location.replace("login.html");
+        } else {
+            // Optional: Populate user info in sidebar if you have the same IDs there
+            document.getElementById('userName').textContent = session.user.email.split('@')[0];
+        }
+    }
+    checkAuth();
+</script>
+</body>
+</html>

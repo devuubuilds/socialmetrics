@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Report | SocialMetrics AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --accent: #6366f1; --bg: #050508; }
+        body { 
+            background-color: var(--bg); 
+            color: #e2e8f0; 
+            font-family: 'Outfit', sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        #loading { 
+            text-align: center; 
+            margin-top: 100px; 
+            font-weight: bold; 
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+
+        /* Container for injected Edge Function HTML */
+        #report-container {
+            animation: fadeIn 1s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="loading">UPLINKING NEURAL DATA...</div>
+
+        <div id="report-container"></div>
+    </div>
+
+    <script src="js/view-report.js"></script>
+</body>
+</html>
