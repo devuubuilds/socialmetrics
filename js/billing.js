@@ -1,7 +1,7 @@
 // ==================== BILLING ENGINE v10.0 ====================
 const SUPABASE_URL      = 'https://mtqnkdblgieliqkthasc.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10cW5rZGJsZ2llbGlxa3RoYXNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3MDAyNjIsImV4cCI6MjA4NTI3NjI2Mn0.-trmIlrF9SUnrEJD9Y-K3doiPcT0YOwiwtLwQtixh0I';
-const PAYPAL_CLIENT_ID  = 'AdcFI5LChK2-GIIoE2Azd4PXGaYUXK6Uv0bgjFYZeT_fa6IoyykOg_1XMeHteN2eTWMLI9jcAdgWiMeN';
+const PAYPAL_CLIENT_ID  = 'AdcFI5LChK2-GIloE2Azd4PXGaYUXK6Uv0bgjFYZeT_fa6IoyykOg_1XMeHteN2eTWMLl9jcAdgWiMeN';
 const PAYPAL_PLAN_ID    = 'P-16746590U6204582RNGW2DPA';
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
