@@ -176,7 +176,7 @@ async function launchAnalysis(platform, username) {
 
     try {
         // ── Map platform to edge function + payload ───────────────
-        const fnName = 'analyze-instagram-v2'; // Instagram only
+        const fnName = 'Insta-scrap'; // Instagram only
 
         const { data: { user } } = await supabaseClient.auth.getUser();
         const payload = { userId: user.id, username };
