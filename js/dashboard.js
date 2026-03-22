@@ -176,9 +176,10 @@ async function launchAnalysis(platform, username) {
 
     try {
         // ── Map platform to edge function + payload ───────────────
-        const fnName = 'Insta-scrap'; // Instagram only
+        const fnName = 'analyze-instagram-v2'; // Instagram only
 
         const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) { window.location.replace("login.html"); return; } // 🔒 FIX: null user guard
         const payload = { userId: user.id, username };
 
         setStage("ESTABLISHING NEURAL UPLINK...", 5);
